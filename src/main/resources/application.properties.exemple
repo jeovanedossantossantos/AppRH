@@ -1,0 +1,13 @@
+spring.application.name=AppRH
+spring.datasource.url = jdbc:mysql://localhost:3306/nome-do-seu-banco-de-dados?useTimezone=true&serverTimeZone=UTC
+spring.datasource.username = name_user_bank
+spring.datasource.password = your_password
+
+spring.datasource.testWhileIdle = true
+spring.datasource.validationQuery = SELECT 1
+
+
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.database-platform = org.hibernate.dialect.MariaDBDialect
+spring.jpa.generate-ddl=true
+spring.jpa.hibernate.ddl-auto = update
