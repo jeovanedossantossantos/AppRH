@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,10 @@ public class VagaController {
     };
 
     @PostMapping("/vagas")
-    public ResponseEntity<?> registerVaga(@Valid @RequestBody Vaga vaga, BindingResult result) {
+    public ResponseEntity<?> registerVaga(
+            @Valid @RequestBody Vaga vaga,
+            BindingResult result) {
+
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body("Verifique os campos.");
         }
@@ -43,10 +49,15 @@ public class VagaController {
     }
 
     @GetMapping("/vagas/list")
-    public ResponseEntity<List<Vaga>> listVagas() {
-        List<Vaga> vagas = (List<Vaga>) vr.findAll();
+    public ResponseEntity<Page<Vaga>> listVagas(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size) {
 
-        return ResponseEntity.ok(vagas);
+        // var pageResponse = vr.findPageBy(PageRequest.of(page, size));
+        // List<Vaga> vagas = (List<Vaga>) vr.findAll();
+        var pageResponse = vr.findPageBy(PageRequest.of(page, size));
+
+        return ResponseEntity.ok(pageResponse);
     }
 
     @GetMapping("/vagas/{id}")
