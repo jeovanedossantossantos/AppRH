@@ -1,7 +1,7 @@
 # JAVA SPRING-BOOT: Projeto vaga de trabalho
 
 
-Este projeto tem o intuido dê praticar os conceitos da lingugem Java e do seu freamework Spring-Boot.
+Este projeto tem o intuído dê praticar os conceitos da linguagem Java e do seu framework Spring-Boot.
 
 # O que consiste o projeto?
 
