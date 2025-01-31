@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: apprh
+    restart: always
+    depends_on:
+      - db
+      - redis_rh
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/apprh_db?useTimezone=true&serverTimeZone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: senha123
+      SPRING_REDIS_HOST: redis_rh
+      SPRING_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    networks:
+      - minha_rede
+
+  db:
+    image: mysql:8.0
+    container_name: apprh_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha123
+      MYSQL_DATABASE: apprh_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - minha_rede
+
+  redis_rh:
+    image: redis:latest
+    container_name: redis_rh
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - minha_rede
+
+volumes:
+  mysql_data:
+
+networks:
+  minha_rede:

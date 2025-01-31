@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.AppRH.AppRH.models.Candidato;
@@ -64,7 +65,9 @@ public class CandidatoController {
     }
 
     @GetMapping("/candidato/{rg}/vagas")
-    public ResponseEntity<?> candidatoVagas(@PathVariable("rg") String rg) {
+    public ResponseEntity<?> candidatoVagas(@PathVariable("rg") String rg,
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "size", defaultValue = "10") Integer size) {
 
         Candidato cand = cr.findByRg(rg);
 

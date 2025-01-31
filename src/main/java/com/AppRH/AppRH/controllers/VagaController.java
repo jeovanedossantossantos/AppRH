@@ -19,6 +19,7 @@ import com.AppRH.AppRH.dto.VagaDTO;
 import com.AppRH.AppRH.models.Candidato;
 import com.AppRH.AppRH.models.Vaga;
 import com.AppRH.AppRH.repository.*;
+import com.AppRH.AppRH.services.RedisService;
 
 @RestController
 @RequestMapping("/api")
@@ -26,6 +27,8 @@ public class VagaController {
 
     @Autowired
     private VagaRepository vr;
+    @Autowired
+    private RedisService redis;
 
     @GetMapping
     public ResponseEntity<?> listening() {
@@ -49,13 +52,19 @@ public class VagaController {
     }
 
     @GetMapping("/vagas/list")
-    public ResponseEntity<Page<Vaga>> listVagas(
+    public ResponseEntity<Object> listVagas(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
 
-        // var pageResponse = vr.findPageBy(PageRequest.of(page, size));
-        // List<Vaga> vagas = (List<Vaga>) vr.findAll();
+        var key = "vagas:page=" + page + "&size=" + size;
+        var cache = redis.getFromRedis(key);
+        if (cache != null) {
+
+            return ResponseEntity.ok(cache);
+        }
         var pageResponse = vr.findPageBy(PageRequest.of(page, size));
+
+        redis.saveToRedis(key, pageResponse);
 
         return ResponseEntity.ok(pageResponse);
     }
