@@ -23,13 +23,13 @@ Se trata de um crud simples, onde as suas funcionalidade são:
 
 # Melhorias futuras no projeto
 
-- [ ] Paginação das rotas de listar informações
-- [ ] Contenizar a aplicação com o Docker
-- [ ] Adcionar cache usando o Redis
+- [x] Paginação das rotas de listar informações
+- [x] Contenizar a aplicação com o Docker
+- [x] Adcionar cache usando o Redis
 
 # Tecnologias usadas
 
 - [x] Java 21 - Spring-Boot
 - [x] MariaDB - Mysql
-- [ ] Docker
-- [ ] Redis
+- [x] Docker
+- [x] Redis
