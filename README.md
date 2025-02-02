@@ -1,7 +1,7 @@
 # JAVA SPRING-BOOT: Projeto vaga de trabalho
 
 
-Este projeto tem o intuido dê praticar os conceitos da lingugem Java e do seu freamework Spring-Boot.
+Este projeto tem o intuído dê praticar os conceitos da linguagem Java e do seu framework Spring-Boot.
 
 # O que consiste o projeto?
 
@@ -23,13 +23,13 @@ Se trata de um crud simples, onde as suas funcionalidade são:
 
 # Melhorias futuras no projeto
 
-- [ ] Paginação das rotas de listar informações
-- [ ] Contenizar a aplicação com o Docker
-- [ ] Adcionar cache usando o Redis
+- [x] Paginação das rotas de listar informações
+- [x] Contenizar a aplicação com o Docker
+- [x] Adcionar cache usando o Redis
 
 # Tecnologias usadas
 
 - [x] Java 21 - Spring-Boot
 - [x] MariaDB - Mysql
-- [ ] Docker
-- [ ] Redis
+- [x] Docker
+- [x] Redis
