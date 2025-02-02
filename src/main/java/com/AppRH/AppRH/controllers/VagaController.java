@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,10 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.AppRH.AppRH.dto.CandidatoDTO;
 import com.AppRH.AppRH.dto.VagaDTO;
-import com.AppRH.AppRH.models.Candidato;
 import com.AppRH.AppRH.models.Vaga;
 import com.AppRH.AppRH.repository.*;
 import com.AppRH.AppRH.services.RedisService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api")
@@ -47,6 +46,7 @@ public class VagaController {
         }
 
         Vaga vagaSalva = vr.save(vaga);
+        redis.deleteAllVagasPages("vagas:page=*");
 
         return ResponseEntity.ok(vagaSalva);
     }
@@ -56,23 +56,28 @@ public class VagaController {
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
 
-        var key = "vagas:page=" + page + "&size=" + size;
-        var cache = redis.getFromRedis(key);
-        if (cache != null) {
+        String key = "vagas:page=" + page + "&size=" + size;
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Object> cache = (Page<Object>) redis.getFromRedis(key, pageable);
+        if (!cache.isEmpty()) {
 
             return ResponseEntity.ok(cache);
         }
-        var pageResponse = vr.findPageBy(PageRequest.of(page, size));
+        var pageResponse = vr.findPageBy(pageable);
 
         redis.saveToRedis(key, pageResponse);
 
         return ResponseEntity.ok(pageResponse);
+
     }
 
     @GetMapping("/vagas/{id}")
     public ResponseEntity<?> indexVagar(@PathVariable("id") long id) {
 
         Vaga vaga = vr.findByCodigo(id);
+        VagaDTO vagaDTO = new VagaDTO();
+        var key = "vagas:" + id;
         if (vaga == null) {
             Map<String, String> response = new HashMap<>();
             response.put("menssage", "Vaga não encontrada!");
@@ -80,7 +85,12 @@ public class VagaController {
 
         }
 
-        VagaDTO vagaDTO = new VagaDTO();
+        var cache = redis.getToRedisId(key, VagaDTO.class);
+        if (cache != null) {
+
+            return ResponseEntity.ok(cache);
+        }
+
         vagaDTO.setCodigo(vaga.getCodigo());
         vagaDTO.setNome(vaga.getNome());
         vagaDTO.setDescricao(vaga.getDescricao());
@@ -97,6 +107,7 @@ public class VagaController {
         }).toList();
 
         vagaDTO.setCandidatos(candidatos);
+        redis.saveToRedisId(key, vagaDTO);
 
         return ResponseEntity.ok(vagaDTO);
     }
@@ -112,6 +123,8 @@ public class VagaController {
         }
 
         vr.delete(vaga);
+        redis.deleteAllVagasPages("vagas:page=*");
+        redis.deleteAllVagasPages("vagas:" + id);
 
         response.put("menssage", "Vaga deletada com sucesso!");
 
@@ -142,6 +155,8 @@ public class VagaController {
         }
 
         Vaga vagaUpdate = vr.save(vagaSalva);
+        redis.deleteAllVagasPages("vagas:page=*");
+        redis.deleteAllVagasPages("vagas:" + id);
 
         return ResponseEntity.ok(vagaUpdate);
 
