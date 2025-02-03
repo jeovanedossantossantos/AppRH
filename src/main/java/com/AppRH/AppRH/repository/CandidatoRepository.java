@@ -2,12 +2,19 @@ package com.AppRH.AppRH.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
 import com.AppRH.AppRH.models.Candidato;
 import com.AppRH.AppRH.models.Vaga;
 
-public interface CandidatoRepository extends CrudRepository<Candidato, Long> {
+public interface CandidatoRepository extends JpaRepository<Candidato, Long> {
+
+    @Query("SELECT v FROM Vaga v WHERE :candidato MEMBER OF v.candidatos")
+    Page<Vaga> findPageBy(@Param("candidato") Candidato candidato, Pageable pageable);
 
     Iterable<Candidato> findByVagas(Vaga vagas);
 

@@ -59,6 +59,7 @@ public class VagaController {
         String key = "vagas:page=" + page + "&size=" + size;
         Pageable pageable = PageRequest.of(page, size);
 
+        @SuppressWarnings("unchecked")
         Page<Object> cache = (Page<Object>) redis.getFromRedis(key, pageable);
         if (!cache.isEmpty()) {
 

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +21,8 @@ import com.AppRH.AppRH.models.Candidato;
 import com.AppRH.AppRH.models.Vaga;
 import com.AppRH.AppRH.repository.CandidatoRepository;
 import com.AppRH.AppRH.repository.VagaRepository;
+import com.AppRH.AppRH.services.RedisService;
+
 import jakarta.validation.Valid;
 
 @RestController
@@ -28,6 +33,9 @@ public class CandidatoController {
 
     @Autowired
     private CandidatoRepository cr;
+
+    @Autowired
+    private RedisService redis;
 
     @PostMapping("/subscribe/{id_vaga}")
     public ResponseEntity<?> subscribeVaga(@Valid @RequestBody Candidato candidato,
@@ -61,6 +69,9 @@ public class CandidatoController {
         }
 
         Candidato candUpdate = cr.save(cand);
+
+        redis.deleteAllVagasPages("candidato:vagas:rg=" + cand.getRg());
+        redis.deleteAllVagasPages("vagas:" + id_vaga);
         return ResponseEntity.ok(candUpdate);
     }
 
@@ -69,13 +80,25 @@ public class CandidatoController {
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "size", defaultValue = "10") Integer size) {
 
+        String key = "candidato:vagas:rg=" + rg + "&page=" + page + "&size=" + size;
+        Pageable pageable = PageRequest.of(page, size);
+
+        @SuppressWarnings("unchecked")
+        Page<Object> cache = (Page<Object>) redis.getFromRedis(key, pageable);
+        if (!cache.isEmpty()) {
+
+            return ResponseEntity.ok(cache);
+        }
         Candidato cand = cr.findByRg(rg);
 
         if (cand == null) {
             return ResponseEntity.badRequest().body("Candidato não encontrado!");
         }
 
-        return ResponseEntity.ok(cand.getVagas());
+        var pageResponse = cr.findPageBy(cand, pageable);
+        redis.saveToRedisId(key, pageResponse);
+
+        return ResponseEntity.ok(pageResponse);
     }
 
 }

@@ -2,6 +2,9 @@ package com.AppRH.AppRH.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PageDTO<T> {
     private List<?> content;
     private Object contentId;

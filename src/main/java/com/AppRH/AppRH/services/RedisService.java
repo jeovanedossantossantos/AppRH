@@ -1,14 +1,12 @@
 package com.AppRH.AppRH.services;
 
+import com.AppRH.AppRH.dto.CandidatoDTO;
 import com.AppRH.AppRH.dto.PageDTO;
 import com.AppRH.AppRH.dto.VagaDTO;
-import com.AppRH.AppRH.models.Vaga;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -33,7 +31,6 @@ public class RedisService {
     public void saveToRedis(String key, Page<?> value) {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        // redisTemplate.opsForValue().set(key, value);
         try {
             PageDTO<Object> pageDTO = new PageDTO<>(value.getContent(), value.getTotalElements());
             String jsonValue = objectMapper.writeValueAsString(pageDTO);
@@ -50,6 +47,7 @@ public class RedisService {
 
         if (jsonValue != null) {
             try {
+                @SuppressWarnings("unchecked")
                 PageDTO<Object> pageDTO = objectMapper.readValue(jsonValue, PageDTO.class);
                 return new PageImpl<>(pageDTO.getContent(), pageable, pageDTO.getTotalElements());
             } catch (Exception e) {
@@ -62,12 +60,6 @@ public class RedisService {
 
     public void saveToRedisId(String key, Object value) {
         ObjectMapper objectMapper = new ObjectMapper();
-
-        // Evita a inclusão de @class no JSON
-        // objectMapper.activateDefaultTyping(
-        // LaissezFaireSubTypeValidator.instance,
-        // ObjectMapper.DefaultTyping.NON_FINAL,
-        // JsonTypeInfo.As.WRAPPER_ARRAY);
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
